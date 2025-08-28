@@ -1,0 +1,27 @@
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Net5Angular8.Services;
+using Microsoft.AspNetCore.Mvc;
+using Net5Angular8.Models;
+
+namespace Net5Angular8.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class PositionsController : ControllerBase
+    {
+        private readonly IPositionsService _positionService;
+
+        public PositionsController(IPositionsService positionService)
+        {
+            _positionService = positionService;
+        }
+
+        // GET: api/Positions
+        [HttpGet]
+        public async Task<IEnumerable<Position>> Get()
+        {
+            return await _positionService.GetPositionsList();
+        }
+    }
+}

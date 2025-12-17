@@ -1,6 +1,7 @@
-﻿using System.Reflection;
+﻿using CleanArchitectureDemo.Application.Common.Behaviors;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace CleanArchitectureDemo.Application.Extensions;
 
@@ -20,11 +21,16 @@ public static class IServiceCollectionExtensions
 
     private static void AddMediator(this IServiceCollection services)
     {
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+        services.AddMediatR(config =>
+        {
+            config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            config.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            config.AddOpenBehavior(typeof(LoggingBehavior<,>));
+        });
     }
 
     private static void AddValidators(this IServiceCollection services)
     {
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-    }        
+    }
 }

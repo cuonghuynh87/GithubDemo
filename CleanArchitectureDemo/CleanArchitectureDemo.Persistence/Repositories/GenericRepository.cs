@@ -5,45 +5,42 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitectureDemo.Persistence.Repositories;
 
-public class GenericRepository<T> : IGenericRepository<T> where T : BaseAuditableEntity
+public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly DbSet<T> _dbSet;
 
     public GenericRepository(ApplicationDbContext dbContext)
     {
-        _dbContext = dbContext;
+        _dbSet = dbContext.Set<T>();
     }
 
-    public IQueryable<T> Entities => _dbContext.Set<T>();
+    public IQueryable<T> Entities => _dbSet;
 
     public async Task<T> AddAsync(T entity)
     {
-        await _dbContext.Set<T>().AddAsync(entity);
+        await _dbSet.AddAsync(entity);
         return entity;
     }
 
-    public Task UpdateAsync(T entity)
+    public Task<T> UpdateAsync(T entity)
     {
-        T exist = _dbContext.Set<T>().Find(entity.Id);
-        _dbContext.Entry(exist).CurrentValues.SetValues(entity);
-        return Task.CompletedTask;
+        _dbSet.Update(entity);
+        return Task.FromResult(entity);
     }
 
-    public Task DeleteAsync(T entity)
+    public Task<bool> DeleteAsync(T entity)
     {
-        _dbContext.Set<T>().Remove(entity);
-        return Task.CompletedTask;
+        _dbSet.Remove(entity);
+        return Task.FromResult(true);
     }
 
     public async Task<List<T>> GetAllAsync()
     {
-        return await _dbContext
-            .Set<T>()
-            .ToListAsync();
+        return await _dbSet.ToListAsync();
     }
 
     public async Task<T> GetByIdAsync(int id)
     {
-        return await _dbContext.Set<T>().FindAsync(id);
+        return await _dbSet.FindAsync(id);
     }
 }

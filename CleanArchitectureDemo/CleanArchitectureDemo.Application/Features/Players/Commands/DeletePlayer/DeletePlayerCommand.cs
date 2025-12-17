@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using CleanArchitectureDemo.Application.Common.Exceptions;
 using CleanArchitectureDemo.Application.Common.Mappings;
 using CleanArchitectureDemo.Application.Interfaces.Repositories;
 using CleanArchitectureDemo.Domain.Entities;
@@ -18,25 +18,29 @@ public record DeletePlayerCommand : IRequest<Result<int>>, IMapFrom<Player>
 
     public DeletePlayerCommand(int id)
     {
-        Id = id; 
+        Id = id;
     }
 }
 
 internal class DeletePlayerCommandHandler : IRequestHandler<DeletePlayerCommand, Result<int>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
 
-    public DeletePlayerCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public DeletePlayerCommandHandler(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
-        _mapper = mapper;
     }
 
     public async Task<Result<int>> Handle(DeletePlayerCommand command, CancellationToken cancellationToken)
     {
         var player = await _unitOfWork.Repository<Player>().GetByIdAsync(command.Id);
-        if (player != null)
+
+        if (player == null)
+        {
+            throw new NotFoundException("Player", command.Id);
+            //return await Result<int>.FailureAsync("Player Not Found.");
+        }
+        else
         {
             await _unitOfWork.Repository<Player>().DeleteAsync(player);
             player.AddDomainEvent(new PlayerDeletedEvent(player));
@@ -44,10 +48,6 @@ internal class DeletePlayerCommandHandler : IRequestHandler<DeletePlayerCommand,
             await _unitOfWork.Save(cancellationToken);
 
             return await Result<int>.SuccessAsync(player.Id, "Product Deleted");
-        }
-        else
-        {
-            return await Result<int>.FailureAsync("Player Not Found.");
         }
     }
 }

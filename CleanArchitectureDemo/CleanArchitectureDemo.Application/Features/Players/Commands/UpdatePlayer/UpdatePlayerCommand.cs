@@ -23,13 +23,17 @@ internal class UpdatePlayerCommandHandler : IRequestHandler<UpdatePlayerCommand,
     public UpdatePlayerCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
-        _mapper = mapper; 
+        _mapper = mapper;
     }
 
     public async Task<Result<int>> Handle(UpdatePlayerCommand command, CancellationToken cancellationToken)
     {
         var player = await _unitOfWork.Repository<Player>().GetByIdAsync(command.Id);
-        if (player != null)
+        if (player == null)
+        {
+            return await Result<int>.FailureAsync("Player Not Found.");
+        }
+        else
         {
             player.Name = command.Name;
             player.ShirtNo = command.ShirtNo;
@@ -43,9 +47,5 @@ internal class UpdatePlayerCommandHandler : IRequestHandler<UpdatePlayerCommand,
 
             return await Result<int>.SuccessAsync(player.Id, "Player Updated.");
         }
-        else
-        {
-            return await Result<int>.FailureAsync("Player Not Found.");
-        }               
     }
 }

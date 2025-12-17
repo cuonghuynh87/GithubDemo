@@ -2,20 +2,13 @@
 
 namespace CleanArchitectureDemo.Domain.Entities;
 
-public class Country : BaseAuditableEntity
+public class Country : BaseEntity<int>
 {
-    public Country()
-    {
-        Players = new List<Player>();
-        Stadiums = new List<Stadium>();
-    }
-
-    public string Name { get; set; }
-    public string TwoLetterIsoCode { get; set; }
-    public string ThreeLetterIsoCode { get; set; }
-    public string FlagUrl { get; set; }
-    public int? DisplayOrder { get; set; }
-
-    public IList<Player> Players { get; set; }
-    public IList<Stadium> Stadiums { get; set; }
+    public string Name { get; set; } = default!;
+    public string TwoLetterIsoCode { get; set; } = default!;
+    public string ThreeLetterIsoCode { get; set; } = default!;
+    public string FlagUrl { get; set; } = default!;
+    public int DisplayOrder { get; set; } = default!;
+    public IList<Player> Players { get; set; } = new List<Player>();
+    public IList<Stadium> Stadiums { get; set; } = new List<Stadium>();
 }

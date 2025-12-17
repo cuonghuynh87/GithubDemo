@@ -3,6 +3,7 @@ using CleanArchitectureDemo.Application.Common.Mappings;
 using CleanArchitectureDemo.Application.Interfaces.Repositories;
 using CleanArchitectureDemo.Domain.Entities;
 using CleanArchitectureDemo.Shared;
+using FluentValidation;
 using MediatR;
 
 namespace CleanArchitectureDemo.Application.Features.Players.Commands.CreatePlayer;
@@ -13,6 +14,14 @@ public record CreatePlayerCommand : IRequest<Result<int>>, IMapFrom<Player>
     public int ShirtNo { get; set; }
     public string PhotoUrl { get; set; }
     public DateTime? BirthDate { get; set; }
+}
+
+public class CreatePlayerCommandValidator : AbstractValidator<CreatePlayerCommand>
+{
+    public CreatePlayerCommandValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty().WithMessage("Name is required");
+    }
 }
 
 internal class CreatePlayerCommandHandler : IRequestHandler<CreatePlayerCommand, Result<int>>

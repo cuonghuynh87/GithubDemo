@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using CleanArchitectureDemo.Application.Interfaces.Repositories;
+﻿using CleanArchitectureDemo.Application.Interfaces.Repositories;
 using CleanArchitectureDemo.Domain.Common;
 using CleanArchitectureDemo.Persistence.Contexts;
+using System.Collections;
 
 namespace CleanArchitectureDemo.Persistence.Repositories;
 
@@ -16,7 +16,7 @@ public class UnitOfWork : IUnitOfWork
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public IGenericRepository<T> Repository<T>() where T : BaseAuditableEntity
+    public IGenericRepository<T> Repository<T>() where T : BaseEntity
     {
         if (_repositories == null)
             _repositories = new Hashtable();
@@ -32,7 +32,7 @@ public class UnitOfWork : IUnitOfWork
             _repositories.Add(type, repositoryInstance);
         }
 
-        return (IGenericRepository<T>) _repositories[type];
+        return (IGenericRepository<T>)_repositories[type];
     }
 
     public Task Rollback()
@@ -44,11 +44,6 @@ public class UnitOfWork : IUnitOfWork
     public async Task<int> Save(CancellationToken cancellationToken)
     {
         return await _dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    public Task<int> SaveAndRemoveCache(CancellationToken cancellationToken, params string[] cacheKeys)
-    {
-        throw new NotImplementedException();
     }
 
     public void Dispose()
